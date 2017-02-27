@@ -19,7 +19,7 @@ import requests
 import six
 import warnings
 import logging
-
+from datetime import datetime, timedelta
 
 class ArgumentOutOfRangeException(Exception):
     def __init__(self, message):
@@ -227,3 +227,78 @@ class Translator(object):
             'text': text.encode('utf8')
         }
         return self.call('Detect', params)
+
+class AzureAuthToken:
+    """Class to make sure that .value is always a valid 10-min auth token"""
+    _token = None
+    last_fetched = None
+
+    def __init__(self, api_key: str):
+        self.azure_api_key = api_key
+
+    @property
+    def value(self):
+        """The value of the current auth token"""
+        if self._token is None or self.outdated:
+            self.update()
+        return self._token
+
+    @property
+    def outdated(self):
+        """Returns True if a new token value must be fetched"""
+        return self.last_fetched is None or \
+               datetime.utcnow() > self.last_fetched+timedelta(minutes=9)
+
+    def update(self):
+        url = 'https://api.cognitive.microsoft.com/sts/v1.0/issueToken'
+        headers = {'Ocp-Apim-Subscription-Key': self.azure_api_key}
+        resp = requests.post(url, headers=headers)
+        self._token = resp.text
+        self.last_fetched = datetime.utcnow()
+
+class TranslatorCS(Translator):
+    """TranslatorCS is designed to be used with Azure Cognitive Services"""
+
+    def __init__(self, client_key, debug=False):
+        """"""
+        self.auth_token = AzureAuthToken(client_key)
+        self.debug = debug
+        self.logger = logging.getLogger("microsofttranslator")
+        if self.debug:
+            self.logger.setLevel(level=logging.DEBUG)
+
+    def get_access_token(self):
+        raise AttributeError(
+            "'TranslatorCS' object has no attribute 'get_access_token'"
+        )
+
+    def call(self, path, params):
+        """Calls the given path with the params urlencoded
+
+        :param path: The path of the API call being made
+        :param params: The parameters dictionary
+        """
+
+        resp = requests.get(
+            "/".join([self.base_url, path]),
+            params=params,
+            headers={'Authorization': 'Bearer %s' % self.auth_token.value}
+        )
+        resp.encoding = 'UTF-8-sig'
+        rv = resp.json()
+
+        if isinstance(rv, six.string_types) and \
+                rv.startswith("ArgumentOutOfRangeException"):
+            raise ArgumentOutOfRangeException(rv)
+
+        if isinstance(rv, six.string_types) and \
+                rv.startswith("TranslateApiException"):
+            raise TranslateApiException(rv)
+
+        #In theroy, this should never be called, but just in case...
+        if isinstance(rv, six.string_types) and \
+                rv.startswith(("ArgumentException: "
+                               "The incoming token has expired")):
+            self.auth_token.last_fetched = None
+            return self.call(path, params)
+        return rv
