@@ -233,7 +233,7 @@ class AzureAuthToken:
     _token = None
     last_fetched = None
 
-    def __init__(self, api_key: str):
+    def __init__(self, api_key):
         self.azure_api_key = api_key
 
     @property
