@@ -18,19 +18,18 @@
         "Olá"
 
     The documentation for the service can be obtained here:
-    http://msdn.microsoft.com/en-us/library/ff512423.aspx
+    https://docs.microsoft.com/en-us/azure/cognitive-services/translator/
 
     The project is hosted on GitHub where your could fork the project or report
     issues. Visit https://github.com/fulfilio/Microsoft-Translator-Python-API
-
 """
+
 import codecs
 from setuptools import setup
 
-
 setup(
     name="microsofttranslator",
-    version="0.8",
+    version="0.9",
     packages=[
         'microsofttranslator',
     ],
@@ -39,7 +38,7 @@ setup(
     },
     author="Fulfil.IO Inc., Openlabs Technologies & Consulting (P) Limited",
     author_email="info@fulfil.io",
-    description="Microsoft Translator V2 - Python API",
+    description="Microsoft Translator V3 - Python API",
     long_description=codecs.open(
         'README.rst', encoding='UTF-8'
     ).read(),
