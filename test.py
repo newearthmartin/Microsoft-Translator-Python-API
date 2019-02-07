@@ -15,14 +15,10 @@ class TestTranslator(unittest.TestCase):
     def test_translate(self):
         client = Translator(azure_translator_key)
         translated = client.translate(['hello', 'how are you?'], 'pt,fr')
-        self.assertEqual(translated[0][0]['text'], u'Ol\xe1')
-        self.assertEqual(translated[0][1]['text'], u'Salut')
-        self.assertEqual(translated[1][0]['text'], u'Como est\xe1?')
-        self.assertEqual(translated[1][1]['text'], u'Comment vas-tu?')
-        self.assertEqual(translated[0][0]['to'], 'pt')
-        self.assertEqual(translated[0][1]['to'], 'fr')
-        self.assertEqual(translated[1][0]['to'], 'pt')
-        self.assertEqual(translated[1][1]['to'], 'fr')
+        self.assertEqual(translated, [
+            [u'Ol\xe1', u'Salut'],
+            [u'Como est\xe1?', u'Comment vas-tu?'],
+        ])
 
     def test_invalid_translator_key(self):
         client = Translator('invalid_translator_key')
@@ -43,8 +39,7 @@ class TestTranslator(unittest.TestCase):
     def test_detect_language(self):
         client = Translator(azure_translator_key)
         detected_language = client.detect_language(['how are you?'])[0]
-        print detected_language
-        self.assertEqual(detected_language['language'], u'en')
+        self.assertEqual(detected_language['language'], 'en')
 
 def test_all():
     loader = unittest.TestLoader()

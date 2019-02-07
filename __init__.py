@@ -16,7 +16,7 @@ import requests
 import logging
 from datetime import datetime, timedelta
 
-logger = logging.getLogger("microsofttranslator")
+logger = logging.getLogger('microsofttranslator')
 
 class AzureAuthToken:
     """ Class to make sure that .value is always a valid 10-min auth token """
@@ -55,7 +55,7 @@ class TranslatorException(Exception):
 class Translator(object):
     """ Implements the Azure Cognitive Services - Translator REST API """
 
-    base_url = "https://api.cognitive.microsofttranslator.com"
+    base_url = 'https://api.cognitive.microsofttranslator.com'
 
     def __init__(self, client_key):
         self.auth_token = AzureAuthToken(client_key)
@@ -130,7 +130,7 @@ class Translator(object):
             'category': category,
         }
         if from_lang: params['from'] = from_lang
-        translated = self.call("translate", params, json=Translator.texts_as_json(texts))
+        translated = self.call('translate', params, json=Translator.texts_as_json(texts))
         def map_fn(outer):
             return map(lambda inner: inner['text'], outer['translations'])
         translated = map(map_fn, translated)
