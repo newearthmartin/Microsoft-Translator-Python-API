@@ -16,7 +16,7 @@ class TestTranslator(unittest.TestCase):
         client = Translator(azure_translator_key)
         translated = client.translate(['hello', 'how are you?'], 'pt,fr')
         self.assertEqual(translated, [
-            [u'Ol\xe1', u'Salut'],
+            [u'Ol\xe1', u'Bonjour'],
             [u'Como est\xe1?', u'Comment vas-tu?'],
         ])
 
