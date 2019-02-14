@@ -91,7 +91,7 @@ class Translator(object):
 
     @staticmethod
     def texts_as_json(texts):
-        return map(lambda text: {'Text': text.encode('utf8')}, texts)
+        return [{'Text': text.encode('utf8')} for text in texts]
 
     def get_languages(self):
         """
@@ -131,9 +131,7 @@ class Translator(object):
         }
         if from_lang: params['from'] = from_lang
         translated = self.call('translate', params, json=Translator.texts_as_json(texts))
-        def map_fn(outer):
-            return map(lambda inner: inner['text'], outer['translations'])
-        translated = map(map_fn, translated)
+        translated = [[inner['text'] for inner in outer['translations']] for outer in translated]
         return translated
 
     def detect_language(self, texts):
